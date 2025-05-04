@@ -1,43 +1,79 @@
 #include<iostream>
+#include<string>
+#include<vector>
 using namespace std;
-int main(){
-int n,i,j;
-int mat[20][20] = {0,0};
-cout<<"Enter no of cities - ";
-cin>>n;
-string city[n];
-for(i=0; i<n; i++){
-cout<<"Enter city "<<i+1<<" name - ";
-cin>>city[i];
+
+// Function to perform DFS and mark visited cities
+void DFS(int v, vector<vector<int>>& mat, vector<bool>& visited, int n) {
+    visited[v] = true;
+    for(int i = 0; i < n; i++) {
+        if(mat[v][i] != 0 && !visited[i]) {
+            DFS(i, mat, visited, n);
+        }
+    }
 }
-for(i=0; i<n; i++){
-for(j=i+1; j<n; j++){
-cout<<"Enter time between "<<city[i]<<" & "<<city[j]<<" - ";
-cin>>mat[i][j];
-mat[j][i] = mat[i][j];
-}
-}
-cout<<"\n---- Adjancency Matrix ----- \n\n";
-for(i=0; i<n; i++){
-cout<<"\t\t"<<city[i];
-}
-cout<<"\n";
-for (i=0; i<n; i++){
-cout<<city[i];
-for(j=0; j<n; j++){
-cout<<"\t\t"<<mat[i][j];
-}
-cout<<"\n";
-}
-cout<<"\n---- Adjancency List ----- \n\n";
-for (i=0; i<n; i++){
-cout<<city[i];
-for(j=0; j<n; j++){
-if(mat[i][j] == 0)
-continue;
-cout<<"->"<<city[j];
-}
-cout<<"\n";
-}
-cout<<"\n\n";
+
+int main() {
+    int n, i, j;
+    // Justification: Adjacency matrix is used for dense graphs and allows O(1) edge queries.
+    // For a small number of cities, it is memory efficient and simple to implement.
+    vector<vector<int>> mat(20, vector<int>(20, 0));
+    cout << "Enter number of cities: ";
+    cin >> n;
+    string city[20];
+    for(i = 0; i < n; i++) {
+        cout << "Enter city " << i+1 << " name: ";
+        cin >> city[i];
+    }
+    for(i = 0; i < n; i++) {
+        for(j = i+1; j < n; j++) {
+            cout << "Enter time between " << city[i] << " & " << city[j] << ": ";
+            cin >> mat[i][j];
+            mat[j][i] = mat[i][j]; // Since the graph is undirected
+        }
+    }
+
+    // Display Adjacency Matrix
+    cout << "\n---- Adjacency Matrix -----\n\n\t";
+    for(i = 0; i < n; i++) {
+        cout << "\t" << city[i];
+    }
+    cout << "\n";
+    for(i = 0; i < n; i++) {
+        cout << city[i];
+        for(j = 0; j < n; j++) {
+            cout << "\t" << mat[i][j];
+        }
+        cout << "\n";
+    }
+
+    // Display Adjacency List
+    cout << "\n---- Adjacency List -----\n\n";
+    for(i = 0; i < n; i++) {
+        cout << city[i];
+        for(j = 0; j < n; j++) {
+            if(mat[i][j] != 0) {
+                cout << " -> " << city[j];
+            }
+        }
+        cout << "\n";
+    }
+
+    // Check if the graph is connected using DFS
+    vector<bool> visited(n, false);
+    DFS(0, mat, visited, n);
+    bool connected = true;
+    for(i = 0; i < n; i++) {
+        if(!visited[i]) {
+            connected = false;
+            break;
+        }
+    }
+    if(connected) {
+        cout << "\nThe graph is CONNECTED. All cities are reachable from any city.\n";
+    } else {
+        cout << "\nThe graph is NOT CONNECTED. Some cities are not reachable from others.\n";
+    }
+
+    return 0;
 }
