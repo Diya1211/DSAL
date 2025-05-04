@@ -1,237 +1,206 @@
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-class node
-{
+class node {
 public:
-	node *left;
-	string word;
-	string meaning;
-	node *right;
+    node* left;
+    string word;
+    string meaning;
+    node* right;
 };
 
-class Dict
-{
+class Dict {
 public:
-	node *root;
-	Dict()
-	{
-		root = NULL;
-	}
-	void create();
-	void insert(node*, node*);
-	void inorder(node*);
-	void descend(node*);
-	void search(node*, string);
-	void modify(node*, string);
-	node* minValue(node*);
-	node* deleteNode(node*, string);
+    node* root;
+    Dict() { root = NULL; }
+    void create();
+    void insert(node*, node*);
+    void inorder(node*);
+    void descend(node*);
+    void search(node*, string);
+    void modify(node*, string);
+    node* minValue(node*);
+    node* deleteNode(node*, string);
+    int height(node*);
 };
 
-void Dict::create()
-{
-    node *temp;
-	temp = new node;
-    cout<<"Enter word: ";
-    cin>>temp->word;
-    getline(cin, temp->meaning);
-    cout<<"Enter meaning: ";
+void Dict::create() {
+    node* temp = new node;
+    cout << "Enter word: ";
+    cin >> temp->word;
+    cin.ignore(); // To clear newline from buffer
+    cout << "Enter meaning: ";
     getline(cin, temp->meaning);
     temp->left = temp->right = NULL;
-    if(root == NULL) 
+    if (root == NULL)
         root = temp;
-    else 
+    else
         insert(root, temp);
 }
 
-void Dict::insert(node *root, node *temp)
-{
-	if(temp->word < root->word)
-	{
-		if(root->left == NULL)  
-		    root->left = temp;
-		else 
-		    insert(root->left, temp);
-	}
-	else
-	{
-		if(root->right == NULL) 
-		    root->right = temp;
-		else 
-		    insert(root->right, temp);
-	}
-}
-
-void Dict::inorder(node *temp)
-{
-	if(temp != NULL)
-	{
-		inorder(temp->left);
-		cout<<temp->word<<endl;
-		inorder(temp->right);
-	}
-}
-
-void Dict::descend(node *temp)
-{
-	if(temp != NULL)
-	{
-		descend(temp->right);
-		cout<<temp->word<<endl;
-		descend(temp->left);
-	}
-}
-
-void Dict::search(node *root, string str_key)
-{
-    if(str_key.compare(root->word)<0)
-    {
-        if(root->left == NULL) 
-            cout<<"Word not found"<<endl;
-        else 
-            search(root->left, str_key);
-    }
-	else if(str_key.compare(root->word)>0)
-    {
-        if(root->right == NULL) 
-            cout<<"Word not found"<<endl;
-        else 
-            search(root->right, str_key);
-    }
-    else
-	{
-		cout<<"Word: "<<root->word<<endl;
-		cout<<"Meaning: "<<root->meaning<<endl;
-	}
-}
-
-void Dict::modify(node *root, string str_key)
-{
-	if(str_key.compare(root->word)<0)
-	{
-	        if(root->left == NULL) 
-	            cout<<"Word not found"<<endl;
-	        else 
-	            modify(root->left, str_key);
-	}
-	else if(str_key.compare(root->word)>0)
-	{
-	    if(root->right == NULL) 
-	        cout<<"Word not found"<<endl;
-	    else 
-	        modify(root->right, str_key);
-	}
-	else
-	{
-		cout<<"Word: "<<root->word<<endl;
-		getline(cin, root->meaning);
-		cout<<"Enter new meaning: ";
-		getline(cin, root->meaning);
-	}
-}
-
-node* Dict::minValue(node *root)
-{
-	node *curr;
-	curr = new node;
-	curr = root;
-	while(curr->left != NULL)
-		curr = curr->left;
-	return curr;
-}
-
-node* Dict::deleteNode(node *root, string str_key)
-{
-	if(root == NULL) return root;
-	node *temp;
-	temp = new node;
-	if(str_key.compare(root->word)<0)
-    {
-        if(root->left == NULL)
-            cout<<"Word not found"<<endl;
+void Dict::insert(node* root, node* temp) {
+    if (temp->word < root->word) {
+        if (root->left == NULL)
+            root->left = temp;
         else
-            root->left = deleteNode(root->left, str_key);
-    }
-	else if(str_key.compare(root->word)>0)
-    {
-        if(root->right == NULL)
-            cout<<"Word not found"<<endl;
+            insert(root->left, temp);
+    } else {
+        if (root->right == NULL)
+            root->right = temp;
         else
-            root->right = deleteNode(root->right, str_key);
+            insert(root->right, temp);
     }
-	else
-	{
-		if(root->left == NULL)
-		{
-			temp = root->right;
-			delete(root);
-			return temp;
-		}
-		if(root->right == NULL)
-		{
-			temp = root->left;
-			delete(root);
-			return temp;
-		}
-		temp = minValue(root->right);
-		root->word = temp->word;
-		root->meaning = temp->meaning;
-		root->right = deleteNode(root->right, temp->word);
-	}
-	return root;
+}
+
+void Dict::inorder(node* temp) {
+    if (temp) {
+        inorder(temp->left);
+        cout << temp->word << " : " << temp->meaning << endl;
+        inorder(temp->right);
+    }
+}
+
+void Dict::descend(node* temp) {
+    if (temp) {
+        descend(temp->right);
+        cout << temp->word << " : " << temp->meaning << endl;
+        descend(temp->left);
+    }
+}
+
+void Dict::search(node* root, string key) {
+    int comparisons = 0;
+    node* curr = root;
+    while (curr) {
+        comparisons++;
+        if (key == curr->word) {
+            cout << "\nWord found in " << comparisons << " comparisons" << endl;
+            cout << "Meaning: " << curr->meaning << endl;
+            return;
+        }
+        curr = (key < curr->word) ? curr->left : curr->right;
+    }
+    cout << "\nWord not found" << endl;
+}
+
+void Dict::modify(node* root, string key) {
+    node* curr = root;
+    while (curr) {
+        if (key == curr->word) {
+            cout << "Current meaning: " << curr->meaning << endl;
+            cout << "Enter new meaning: ";
+            cin.ignore();
+            getline(cin, curr->meaning);
+            cout << "Meaning updated successfully.\n";
+            return;
+        }
+        curr = (key < curr->word) ? curr->left : curr->right;
+    }
+    cout << "\nWord not found" << endl;
+}
+
+node* Dict::minValue(node* root) {
+    node* curr = root;
+    while (curr && curr->left)
+        curr = curr->left;
+    return curr;
+}
+
+node* Dict::deleteNode(node* root, string key) {
+    if (!root)
+        return root;
+
+    if (key < root->word) {
+        root->left = deleteNode(root->left, key);
+    } else if (key > root->word) {
+        root->right = deleteNode(root->right, key);
+    } else {
+        // Node with only one child or no child
+        if (!root->left) {
+            node* temp = root->right;
+            delete root;
+            return temp;
+        } else if (!root->right) {
+            node* temp = root->left;
+            delete root;
+            return temp;
+        }
+        // Node with two children: Get the inorder successor
+        node* temp = minValue(root->right);
+        root->word = temp->word;
+        root->meaning = temp->meaning;
+        root->right = deleteNode(root->right, temp->word);
+    }
+    return root;
+}
+
+int Dict::height(node* root) {
+    if (!root)
+        return -1;
+    return 1 + max(height(root->left), height(root->right));
 }
 
 int main() {
-	Dict B;
-	string key;
-	int n, op;
-    x:B.create();
-    cout<<"Do you want to continue(1/0): ";
-    cin>>n;
-    if(n==1) goto x;
-	while(1)
-	{
-		cout<<"\n1. Enter a word";
-		cout<<"\n2. Ascending order";
-		cout<<"\n3. Descending order";
-		cout<<"\n4. Search";
-		cout<<"\n5. Modify";
-		cout<<"\n6. Delete";
-		cout<<"\n7. Exit";
-		cout<<"\nEnter your choice: ";
-		cin>>op;
-		switch(op)
-		{
-			case 1: 
-			    B.create(); 
-			    break;
-			case 2: 
-			    cout<<"\nAscending order: "<<endl; 
-			    B.inorder(B.root); 
-			    break;
-			case 3: 
-			    cout<<"\nDescending order: "<<endl; 
-			    B.descend(B.root); 
-			    break;
-			case 4:     
-			    cout<<"\nEnter word you want to search: "; 
-			    cin>>key; B.search(B.root, key); 
-			    break;
-			case 5: 
-			    cout<<"\nEnter word you want to modify: "; 
-			    cin>>key; B.modify(B.root, key); 
-			    break;
-			case 6: 
-			    cout<<"\nEnter word you want to delete: "; 
-			    cin>>key; B.root = B.deleteNode(B.root, key); 
-			    break;
-			case 7: 
-			    exit(1); 
-			    break;
-			default: 
-			    cout<<"\nInvalid choice"; 
-			    break;
-		}
-	}
-	return 0;
+    Dict B;
+    string key;
+    int n, op;
+
+    do {
+        B.create();
+        cout << "Add more words? (1 for Yes / 0 for No): ";
+        cin >> n;
+    } while (n == 1);
+
+    while (true) {
+        cout << "\n--- Dictionary Menu ---\n";
+        cout << "1. Add word\n";
+        cout << "2. Display (Ascending order)\n";
+        cout << "3. Display (Descending order)\n";
+        cout << "4. Search\n";
+        cout << "5. Modify\n";
+        cout << "6. Delete\n";
+        cout << "7. Maximum comparisons for search\n";
+        cout << "8. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> op;
+
+        switch (op) {
+            case 1:
+                B.create();
+                break;
+            case 2:
+                cout << "\nAscending Order:\n";
+                B.inorder(B.root);
+                break;
+            case 3:
+                cout << "\nDescending Order:\n";
+                B.descend(B.root);
+                break;
+            case 4:
+                cout << "Enter word to search: ";
+                cin >> key;
+                B.search(B.root, key);
+                break;
+            case 5:
+                cout << "Enter word to modify: ";
+                cin >> key;
+                B.modify(B.root, key);
+                break;
+            case 6:
+                cout << "Enter word to delete: ";
+                cin >> key;
+                B.root = B.deleteNode(B.root, key);
+                break;
+            case 7:
+                cout << "\nMaximum comparisons needed for search: " << B.height(B.root) + 1 << endl;
+                break;
+            case 8:
+                cout << "Exiting. Goodbye!\n";
+                return 0;
+            default:
+                cout << "Invalid choice. Try again.\n";
+        }
+    }
+    return 0;
 }
